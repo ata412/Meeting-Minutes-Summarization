@@ -1,0 +1,20 @@
+services:
+  model:
+    image: "exp01"
+    build: .
+    platform: "linux/amd64"
+    volumes:
+      - ./data/iterdir:/model/test:ro
+      - ./result:/result:rw
+      - ./benchmark_lib:/benchmark_lib:ro
+    working_dir: /model
+    shm_size: '2gb'
+    environment:
+      DATASET_NAME: iterdir
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

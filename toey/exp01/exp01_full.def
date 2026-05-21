@@ -1,0 +1,26 @@
+Bootstrap: docker
+From: nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04
+
+%files
+    toey/exp01/requirements.txt /requirements.txt
+    toey/exp01/run.py /model/run.py
+    .hf_cache/hub/models--BAAI--bge-m3 /root/.cache/huggingface/hub/models--BAAI--bge-m3
+    .hf_cache/hub/models--BAAI--bge-reranker-v2-m3 /root/.cache/huggingface/hub/models--BAAI--bge-reranker-v2-m3
+    .hf_cache/hub/models--Qwen--Qwen3-32B-AWQ /root/.cache/huggingface/hub/models--Qwen--Qwen3-32B-AWQ
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update && apt-get install -y python3.11 python3.11-dev python3-pip && rm -rf /var/lib/apt/lists/*
+    ln -sf /usr/bin/python3.11 /usr/bin/python3
+    pip3 install --no-cache-dir --timeout 300 --retries 5 torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+    pip3 install --no-cache-dir --timeout 300 --retries 5 -r /requirements.txt
+
+%environment
+    export HF_HOME=/root/.cache/huggingface
+    export HF_HUB_OFFLINE=1
+    export TRANSFORMERS_OFFLINE=1
+    export VLLM_WORKER_MULTIPROC_METHOD=spawn
+
+%runscript
+    cd /model
+    exec python3 run.py

@@ -1,0 +1,8 @@
+*.sif
+.hf_cache/
+venv/
+textsum/result/
+logs/
+toey/exp01/apptainer_tmp/
+toey/exp01/result/
+ua047/
