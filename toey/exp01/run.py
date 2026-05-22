@@ -215,7 +215,7 @@ def main():
         items.append((query["ID"], top_pids, messages, q_text, retrieved_texts))
 
     # ── Stage 2: vLLM batch generation ────────────────────────────────────
-    llm = LLM(model=MODEL_NAME, quantization="awq_marlin", max_model_len=8192,
+    llm = LLM(model=MODEL_NAME, quantization="awq_marlin", max_model_len=16384,
               gpu_memory_utilization=0.90, dtype="half", enforce_eager=True)
     tokenizer = llm.get_tokenizer()
     sampling = SamplingParams(temperature=0.0, max_tokens=MAX_NEW_TOKENS,
