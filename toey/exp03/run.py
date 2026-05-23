@@ -1,7 +1,5 @@
 """
-exp01 — BM25 + bge-m3 pool → bge-reranker-v2-m3 rerank → Qwen3-32B-AWQ
-E5 self-citation: feed top-GEN_K paragraphs, LLM cites which ones it used → adaptive refs.
-(E5 with Qwen2.5-7B failed; Qwen3-32B-AWQ follows citation format reliably.)
+exp03 — exp01 + GEN_K=8 + prompt ให้ใช้คำต้นฉบับ + few-shot (ua047 shot2)
 """
 from pathlib import Path
 import os
@@ -22,7 +20,7 @@ TEST_DIR     = os.environ.get("TEST_DIR",     "/model/test")
 RESULT_DIR   = os.environ.get("RESULT_DIR",   "/result/")
 PROGRESS_LIB = os.environ.get("PROGRESS_LIB", "/benchmark_lib/progress")
 
-GEN_K          = 5     # paragraphs fed to LLM for context
+GEN_K          = 8     # paragraphs fed to LLM for context
 POOL_N         = 20    # top-N from each stage-1 retriever before rerank
 EMBED_BATCH    = 64
 MAX_NEW_TOKENS = 512
@@ -94,8 +92,9 @@ def build_prompt(query, retrieved_texts):
     return (
         f"คำถาม: {query}\n\n"
         f"ข้อมูลอ้างอิงจากเอกสาร:\n{context}\n\n"
-        f"คำสั่ง: โปรดสรุปคำตอบเป็นภาษาไทยอย่างกระชับและครอบคลุม "
-        f"โดยอ้างอิงจากข้อมูลที่ให้มาเท่านั้น "
+        f"คำสั่ง: โปรดสรุปคำตอบเป็นภาษาไทยอย่างกระชับ 1-3 ประโยค "
+        f"โดยใช้ถ้อยคำจากเอกสารต้นฉบับให้มากที่สุด "
+        f"อ้างอิงจากข้อมูลที่ให้มาเท่านั้น ห้ามแต่งเติม "
         f"จากนั้นระบุเลขย่อหน้าที่ใช้ในรูปแบบ [อ้างอิง: X] หรือ [อ้างอิง: X, Y]\n"
         f"คำตอบ:"
     )
